@@ -396,7 +396,7 @@ class AlkaliAtom(object):
 
         """
 
-        if self.cpp_numerov:
+        if False: #self.cpp_numerov:
             # efficiant implementation in C
 
             if (l<4):

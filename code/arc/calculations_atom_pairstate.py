@@ -370,10 +370,11 @@ class PairStateInteractions:
                 data meta (description) File "+self.angularMatrixFile_meta)
 
         try:
-            fileHandle = gzip.GzipFile(os.path.join(self.dataFolder,\
-                                                    self.angularMatrixFile),'wb')
-            np.save(fileHandle,self.savedAngularMatrix_matrix)
-            fileHandle.close()
+            #fileHandle = gzip.GzipFile(os.path.join(self.dataFolder,\
+            #                                        self.angularMatrixFile),'wb')
+            #np.save(fileHandle,self.savedAngularMatrix_matrix)
+            #fileHandle.close()
+            pass
         except IOError as e:
             print("Error while updating angularMatrix \
                     data File "+self.angularMatrixFile)
@@ -909,7 +910,7 @@ class PairStateInteractions:
         opi = 0
 
         # NEW FOR SPACE MATRIX
-        self.index = np.zeros(len(self.channel)+1,dtype=np.int16)
+        self.index = np.zeros(len(self.channel)+1,dtype=np.int64)
 
         for i in xrange(len(self.channel)):
             self.index[i] = len(self.basisStates)
@@ -963,10 +964,20 @@ class PairStateInteractions:
                                                    ii+1,len(self.channel)))
                     sys.stdout.flush()
 
+                # Check if the channel has basis states
+                if self.index[ii] == self.index[ii + 1]:
+                    # Skip channels with no basis states
+                    continue
+
                 ed = self.channel[ii][6]
 
                 # solves problems with exactly degenerate basisStates
                 degeneracyOffset = 0.000001
+
+                # Ensure that j is within bounds
+                if i >= len(self.basisStates):
+                    print(f"Invalid index detected: i = {i}, len(self.basisStates) = {len(self.basisStates)}")
+                    continue  # Skip this iteration
 
                 i = self.index[ii]
                 dMatrix1 = wgd.get(self.basisStates[i][2])
@@ -993,7 +1004,18 @@ class PairStateInteractions:
                         jj = c.indices[dataIndex]
                         radialPart = c.data[dataIndex]
 
+                        # Check if the channel has basis states
+                        if self.index[jj] == self.index[jj + 1]:
+                            # Skip channels with no basis states
+                            continue
+
                         j = self.index[jj]
+                        
+                         # Ensure that j is within bounds
+                        if j >= len(self.basisStates):
+                            print(f"Invalid index detected: j = {j}, len(self.basisStates) = {len(self.basisStates)}")
+                            continue  # Skip this iteration
+
                         dMatrix3 = wgd.get(self.basisStates[j][2])
                         dMatrix4 = wgd.get(self.basisStates[j][6])
 
